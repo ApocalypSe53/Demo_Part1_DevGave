@@ -2,36 +2,44 @@
 
 public class MyPlayerShooting : MonoBehaviour
 {
-    float spacing = 0.15f;
+    [Header("Bullet Settings")]
     public GameObject bulletPrefab;
-    public float shootingInterval = 0.1f; // Thời gian giãn cách giữa 2 viên đạn
+    public float shootingInterval = 0.15f; // Giãn cách đạn (tăng lên xíu cho đỡ lag)
+    public float spacing = 0.4f;           // Khoảng cách giữa 3 viên
+    public Vector3 bulletOffset = new Vector3(0, 0.5f, 0); // Vị trí xuất phát từ mũi
+
     private float lastBulletTime;
-    public Vector3 bulletOffset = new Vector3(0, 1f, 0);
 
     void Update()
     {
-        // Đổi thành GetMouseButton (giữ chuột) thay vì Down (nhấn 1 cái)
-        if (Input.GetMouseButton(0)) // 
+        // Hàm này bắt cả Nhấn (Click) và Giữ (Hold)
+        if (Input.GetMouseButton(0))
         {
-            // Kiểm tra thời gian để không bắn quá nhanh
-            if (Time.time - lastBulletTime > shootingInterval) // 
+            // Kiểm tra: Đã nghỉ đủ lâu chưa?
+            if (Time.time - lastBulletTime > shootingInterval)
             {
-                ShootBullet();
-                lastBulletTime = Time.time; //
+                ShootTripleBullets();
+                lastBulletTime = Time.time;
             }
         }
     }
 
-    void ShootBullet()
+    void ShootTripleBullets()
     {
-        Instantiate(bulletPrefab, transform.position + bulletOffset, transform.rotation); //
-        Vector3 leftPos = transform.position + bulletOffset;
-        leftPos.x -= spacing; // Trừ bớt trục X để sang trái
-        Instantiate(bulletPrefab, leftPos, transform.rotation);
+        // 1. Tính toán vị trí gốc (Mũi máy bay) 1 lần thôi cho đỡ tốn CPU
+        Vector3 centerPos = transform.position + bulletOffset;
 
-        // 3. Viên PHẢI (Lấy vị trí gốc, dịch sang phải một chút)
-        Vector3 rightPos = transform.position + bulletOffset;
-        rightPos.x += spacing; // Cộng thêm trục X để sang phải
-        Instantiate(bulletPrefab, rightPos, transform.rotation);
+        // 2. Bắn viên GIỮA
+        Instantiate(bulletPrefab, centerPos, transform.rotation);
+
+        //// 3. Bắn viên TRÁI (Lấy tâm dịch sang trái)
+        //Vector3 leftPos = centerPos;
+        //leftPos.x -= spacing;
+        //Instantiate(bulletPrefab, leftPos, transform.rotation);
+
+        //// 4. Bắn viên PHẢI (Lấy tâm dịch sang phải)
+        //Vector3 rightPos = centerPos;
+        //rightPos.x += spacing;
+        //Instantiate(bulletPrefab, rightPos, transform.rotation);
     }
 }

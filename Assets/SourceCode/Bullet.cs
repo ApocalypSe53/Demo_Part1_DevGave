@@ -2,17 +2,25 @@
 
 public class Bullet : MonoBehaviour
 {
-    public float flySpeed; // Tốc độ bay
+    public float flySpeed = 10f;
+    public int damage = 1; // Sát thương của đạn
 
     void Update()
     {
-        // 1. Lấy vị trí hiện tại
-        var newPosition = transform.position;
+        // Code bay cũ giữ nguyên
+        transform.Translate(Vector3.up * flySpeed * Time.deltaTime);
+    }
 
-        // 2. Tăng giá trị Y để bay lên trên
-        newPosition.y += Time.deltaTime * flySpeed; // [cite: 664]
+    // Thêm hàm xử lý va chạm này
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        // Nếu đụng trúng cái gì đó có script EnemyHealth
+        EnemyHealth enemy = collision.GetComponent<EnemyHealth>();
 
-        // 3. Cập nhật lại vị trí
-        transform.position = newPosition; // [cite: 665]
+        if (enemy != null)
+        {
+            enemy.TakeDamage(damage); // Gây sát thương
+            Destroy(gameObject); // Đạn tự hủy
+        }
     }
 }
